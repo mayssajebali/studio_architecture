@@ -56,7 +56,7 @@ $initiale = $connecte ? mb_strtoupper(mb_substr($_SESSION['client_nom'], 0, 1)) 
 
                     <?php if ($est_admin): ?>
                     <!-- ── Admin connecté ── -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown position-relative">
                         <a href="<?= $prefix ?>auth/dashboard_admin.php"
                            class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0"
                            id="adminDropdown" role="button"
@@ -65,8 +65,8 @@ $initiale = $connecte ? mb_strtoupper(mb_substr($_SESSION['client_nom'], 0, 1)) 
                                 <?= $admin_init ?>
                             </div>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end profil-dropdown" aria-labelledby="adminDropdown">
-                            <li class="dropdown-header-custom">
+                        <ul class="dropdown-menu dropdown-menu-end profil-dropdown" aria-labelledby="adminDropdown" onclick="event.stopPropagation();">
+                            <li class="dropdown-header-custom" onclick="event.stopPropagation();">
                                 <div class="dp-name"><?= $admin_nom ?></div>
                                 <div class="dp-role" style="color:#b8a99a;">Administrateur</div>
                             </li>
@@ -89,7 +89,7 @@ $initiale = $connecte ? mb_strtoupper(mb_substr($_SESSION['client_nom'], 0, 1)) 
 
                     <?php elseif ($connecte): ?>
                     <!-- ── Client connecté (votre code original intact) ── -->
-                    <li class="nav-item dropdown">
+                    <li class="nav-item dropdown position-relative">
                         <a href="<?= $prefix ?>auth/profil.php" class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-0"
                            id="profilDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
@@ -97,8 +97,8 @@ $initiale = $connecte ? mb_strtoupper(mb_substr($_SESSION['client_nom'], 0, 1)) 
                                 <?= $initiale ?>
                             </div>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end profil-dropdown" aria-labelledby="profilDropdown">
-                            <li class="dropdown-header-custom">
+                        <ul class="dropdown-menu dropdown-menu-end profil-dropdown" aria-labelledby="profilDropdown" onclick="event.stopPropagation();">
+                            <li class="dropdown-header-custom" onclick="event.stopPropagation();">
                                 <div class="dp-name"><?= $prenom ?></div>
                                 <div class="dp-role">Client</div>
                             </li>
@@ -197,7 +197,7 @@ $initiale = $connecte ? mb_strtoupper(mb_substr($_SESSION['client_nom'], 0, 1)) 
     margin-top: .6rem;
     font-family: "Inter", sans-serif;
 }
-.dropdown-header-custom { padding: .65rem 1rem .5rem; }
+.dropdown-header-custom { padding: .65rem 1rem .5rem; cursor: default; pointer-events: none; }
 .dp-name { font-size: 13.5px; font-weight: 600; color: #333333; letter-spacing: .01em; }
 .dp-role { font-size: 11px; color: #a09b95; letter-spacing: .05em; text-transform: uppercase; margin-top: 2px; font-weight: 400; }
 .profil-dropdown .dropdown-item {

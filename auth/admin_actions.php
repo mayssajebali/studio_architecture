@@ -115,6 +115,249 @@ if ($action === 'ajouter_avis') {
     exit;
 }
 
+// ═══════════════════════════════════════════════════════════
+// GESTION DES ADMINISTRATEURS
+// ═══════════════════════════════════════════════════════════
+
+if ($action === 'ajouter_admin') {
+    $prenom = trim($_POST['prenom']);
+    $nom = trim($_POST['nom']);
+    $email = trim($_POST['email']);
+    $telephone = trim($_POST['telephone'] ?? '');
+    $mot_de_passe = $_POST['mot_de_passe'];
+
+    // Vérifier si l'email existe déjà
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->execute([$email]);
+    if ($stmt->fetch()) {
+        header('Location: gestion_admins.php?msg=email_existe');
+        exit;
+    }
+
+    // Hasher le mot de passe
+    $mot_de_passe_hash = password_hash($mot_de_passe, PASSWORD_DEFAULT);
+
+    // Insérer le nouvel admin
+    $stmt = $pdo->prepare("
+        INSERT INTO users (nom, prenom, email, telephone, mot_de_passe, role, created_at)
+        VALUES (?, ?, ?, ?, ?, 'admin', NOW())
+    ");
+    $stmt->execute([$nom, $prenom, $email, $telephone, $mot_de_passe_hash]);
+
+    header('Location: gestion_admins.php?msg=ajout');
+    exit;
+}
+
+if ($action === 'modifier_admin') {
+    $id = (int)$_POST['id'];
+    $prenom = trim($_POST['prenom']);
+    $nom = trim($_POST['nom']);
+    $email = trim($_POST['email']);
+    $telephone = trim($_POST['telephone'] ?? '');
+
+    // Vérifier si l'email existe déjà (sauf pour cet admin)
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmt->execute([$email, $id]);
+    if ($stmt->fetch()) {
+        header('Location: modifier_admin.php?id=' . $id . '&msg=email_existe');
+        exit;
+    }
+
+    // Mettre à jour l'admin
+    $stmt = $pdo->prepare("
+        UPDATE users SET nom = ?, prenom = ?, email = ?, telephone = ?
+        WHERE id = ? AND role = 'admin'
+    ");
+    $stmt->execute([$nom, $prenom, $email, $telephone, $id]);
+
+    header('Location: gestion_admins.php?msg=modif');
+    exit;
+}
+
+if ($action === 'changer_mdp_admin') {
+    $id = (int)$_POST['id'];
+    $nouveau_mdp = trim($_POST['nouveau_mdp'] ?? '');
+    $confirmer_mdp = trim($_POST['confirmer_mdp'] ?? '');
+
+    if (empty($nouveau_mdp)) {
+        header('Location: modifier_admin.php?id=' . $id . '&msg=erreur');
+        exit;
+    }
+
+    if ($nouveau_mdp !== $confirmer_mdp) {
+        header('Location: modifier_admin.php?id=' . $id . '&msg=mdp_different');
+        exit;
+    }
+
+    $mot_de_passe_hash = password_hash($nouveau_mdp, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("UPDATE users SET mot_de_passe = ? WHERE id = ? AND role = 'admin'");
+    $stmt->execute([$mot_de_passe_hash, $id]);
+
+    header('Location: modifier_admin.php?id=' . $id . '&msg=mdp_modifie');
+    exit;
+}
+
+if ($action === 'supprimer_admin') {
+    $id = (int)$_POST['id'];
+
+    // Vérifier qu'il reste au moins un admin
+    $count = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'admin'")->fetchColumn();
+    if ($count <= 1) {
+        header('Location: gestion_admins.php?msg=dernier_admin');
+        exit;
+    }
+
+    // Supprimer l'admin
+    $stmt = $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'admin'");
+    $stmt->execute([$id]);
+
+    header('Location: gestion_admins.php?msg=suppression');
+    exit;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROFIL ADMIN (MOI-MÊME)
+// ═══════════════════════════════════════════════════════════
+
+if ($action === 'modifier_profil_admin') {
+    $admin_id = $_SESSION['admin_id'];
+    $prenom = trim($_POST['prenom']);
+    $nom = trim($_POST['nom']);
+    $email = trim($_POST['email']);
+    $telephone = trim($_POST['telephone'] ?? '');
+
+    // Vérifier si l'email existe déjà (sauf pour cet admin)
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmt->execute([$email, $admin_id]);
+    if ($stmt->fetch()) {
+        header('Location: profil_admin.php?msg=email_existe');
+        exit;
+    }
+
+    // Mettre à jour le profil
+    $stmt = $pdo->prepare("
+        UPDATE users SET nom = ?, prenom = ?, email = ?, telephone = ?
+        WHERE id = ? AND role = 'admin'
+    ");
+    $stmt->execute([$nom, $prenom, $email, $telephone, $admin_id]);
+
+    // Mettre à jour la session
+    $_SESSION['admin_nom'] = $nom;
+
+    header('Location: profil_admin.php?msg=modif');
+    exit;
+}
+
+if ($action === 'changer_mon_mdp_admin') {
+    $admin_id = $_SESSION['admin_id'];
+    $nouveau_mdp = trim($_POST['nouveau_mdp'] ?? '');
+    $confirmer_mdp = trim($_POST['confirmer_mdp'] ?? '');
+
+    if (empty($nouveau_mdp)) {
+        header('Location: profil_admin.php?msg=erreur');
+        exit;
+    }
+
+    if ($nouveau_mdp !== $confirmer_mdp) {
+        header('Location: profil_admin.php?msg=mdp_different');
+        exit;
+    }
+
+    $mot_de_passe_hash = password_hash($nouveau_mdp, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("UPDATE users SET mot_de_passe = ? WHERE id = ? AND role = 'admin'");
+    $stmt->execute([$mot_de_passe_hash, $admin_id]);
+
+    header('Location: profil_admin.php?msg=mdp_modifie');
+    exit;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GESTION DES CLIENTS
+// ═══════════════════════════════════════════════════════════
+
+if ($action === 'supprimer_client') {
+    $id = (int)$_POST['id'];
+
+    // Supprimer d'abord les demandes du client
+    $stmt = $pdo->prepare("SELECT email FROM users WHERE id = ? AND role = 'client'");
+    $stmt->execute([$id]);
+    $client = $stmt->fetch();
+
+    if ($client) {
+        // Supprimer les demandes liées à cet email
+        $stmt = $pdo->prepare("DELETE FROM demandes_contact WHERE email = ?");
+        $stmt->execute([$client['email']]);
+
+        // Supprimer le client
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = ? AND role = 'client'");
+        $stmt->execute([$id]);
+
+        header('Location: gestion_clients.php?msg=suppression');
+        exit;
+    }
+
+    header('Location: gestion_clients.php?msg=erreur');
+    exit;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GESTION DES RENDEZ-VOUS
+// ═══════════════════════════════════════════════════════════
+
+if ($action === 'confirmer_rdv') {
+    $id = (int)$_POST['id'];
+    $notes = trim($_POST['notes'] ?? '');
+    
+    $stmt = $pdo->prepare("UPDATE appointments SET status = 'confirme', admin_notes = ? WHERE id = ?");
+    $stmt->execute([$notes, $id]);
+    
+    header('Location: dashboard_admin.php?section=rendez-vous&msg=confirme');
+    exit;
+}
+
+if ($action === 'annuler_rdv') {
+    $id = (int)$_POST['id'];
+    $raison = trim($_POST['raison'] ?? '');
+    
+    $stmt = $pdo->prepare("UPDATE appointments SET status = 'annule', admin_notes = ? WHERE id = ?");
+    $stmt->execute([$raison, $id]);
+    
+    header('Location: dashboard_admin.php?section=rendez-vous&msg=annule');
+    exit;
+}
+
+if ($action === 'terminer_rdv') {
+    $id = (int)$_POST['id'];
+    $notes = trim($_POST['notes'] ?? '');
+    
+    $stmt = $pdo->prepare("UPDATE appointments SET status = 'termine', admin_notes = ? WHERE id = ?");
+    $stmt->execute([$notes, $id]);
+    
+    header('Location: dashboard_admin.php?section=rendez-vous&msg=termine');
+    exit;
+}
+
+if ($action === 'supprimer_rdv') {
+    $id = (int)$_POST['id'];
+    
+    $stmt = $pdo->prepare("DELETE FROM appointments WHERE id = ?");
+    $stmt->execute([$id]);
+    
+    header('Location: dashboard_admin.php?section=rendez-vous&msg=suppression');
+    exit;
+}
+
+if ($action === 'ajouter_notes_rdv') {
+    $id = (int)$_POST['id'];
+    $notes = trim($_POST['notes'] ?? '');
+    
+    $stmt = $pdo->prepare("UPDATE appointments SET admin_notes = ? WHERE id = ?");
+    $stmt->execute([$notes, $id]);
+    
+    header('Location: dashboard_admin.php?section=rendez-vous&msg=notes_ajoutees');
+    exit;
+}
+
 header('Location: dashboard_admin.php');
 exit;
 ?>
