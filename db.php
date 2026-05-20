@@ -1,6 +1,6 @@
 <?php
 $host     = 'localhost';
-$dbname   = 'studio_arch'; 
+$dbname   = 'studio_architecture'; 
 $username = 'root';
 $password = '';                     
 

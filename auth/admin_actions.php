@@ -76,7 +76,7 @@ if ($action === 'traiter_demande') {
     $id = (int)$_POST['id'];
     $statut = $_POST['statut'];
     $reponse = trim($_POST['reponse'] ?? '');
-    $stmt = $pdo->prepare("UPDATE contact_requests SET statut = ?, reponse_admin = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE demandes_contact SET statut = ?, reponse_admin = ? WHERE id = ?");
     $stmt->execute([$statut, $reponse ?: null, $id]);
     header('Location: dashboard_admin.php?section=demandes');
     exit;
@@ -85,14 +85,14 @@ if ($action === 'traiter_demande') {
 if ($action === 'moderer_avis') {
     $id = (int)$_POST['id'];
     $statut = in_array($_POST['statut'], ['approuve', 'masque', 'en_attente']) ? $_POST['statut'] : 'en_attente';
-    $pdo->prepare("UPDATE testimonials SET statut = ? WHERE id = ?")->execute([$statut, $id]);
+    $pdo->prepare("UPDATE temoignages SET statut = ? WHERE id = ?")->execute([$statut, $id]);
     header('Location: dashboard_admin.php?section=avis');
     exit;
 }
 
 if ($action === 'supprimer_avis') {
     $id = (int)$_POST['id'];
-    $pdo->prepare("DELETE FROM testimonials WHERE id = ?")->execute([$id]);
+    $pdo->prepare("DELETE FROM temoignages WHERE id = ?")->execute([$id]);
     header('Location: dashboard_admin.php?section=avis');
     exit;
 }
@@ -106,7 +106,7 @@ if ($action === 'ajouter_avis') {
     $statut = 'approuve'; 
 
     $stmt = $pdo->prepare("
-        INSERT INTO testimonials (client_name, content, rating, date, statut)
+        INSERT INTO temoignages (client_name, content, rating, date, statut)
         VALUES (?, ?, ?, ?, ?)
     ");
     $stmt->execute([$client_name, $content, $rating, $date, $statut]);

@@ -212,6 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['client_id'])) {
     padding: 25px;
     font-family: "Inter", sans-serif;
     font-size: 15px;
+    margin-left:100px;
 }
 </style>
 

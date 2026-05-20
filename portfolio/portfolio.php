@@ -5,23 +5,6 @@ require_once '../db.php';
 
 /** @var PDO $pdo */
 
-
-$message_flash = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['quick_quote'])) {
-    $name = htmlspecialchars($_POST['name']);
-    $email = htmlspecialchars($_POST['email']);
-    $project_type = htmlspecialchars($_POST['project_type']);
-    
-    try {
-        $stmt = $pdo->prepare("INSERT INTO quotes (name, email, project_type) VALUES (?, ?, ?)");
-        $stmt->execute([$name, $email, $project_type]);
-        $message_flash = "✅ Merci ! Nous vous recontacterons sous 48h.";
-    } catch(Exception $e) {
-        $message_flash = "❌ Une erreur est survenue, veuillez réessayer.";
-    }
-}
-
-
 $stmt = $pdo->query("SELECT * FROM portfolio_categories ORDER BY id");
 $allCategories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $projetsCount = count($allCategories);
@@ -143,40 +126,6 @@ $projetsCount = count($allCategories);
     </div>
 </section>
 
-<section class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <h3 class="text-center mb-4">Demande de devis rapide</h3>
-                    <?php if($message_flash): ?>
-                        <div class="alert alert-info text-center"><?= $message_flash ?></div>
-                    <?php endif; ?>
-                    <form method="POST" action="">
-                        <div class="mb-3">
-                            <label class="form-label">Nom complet</label>
-                            <input type="text" name="name" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Type de projet</label>
-                            <select name="project_type" class="form-select" required>
-                                <option value="">Sélectionnez...</option>
-                                <?php foreach($allCategories as $cat): ?>
-                                    <option value="<?= htmlspecialchars($cat['title']) ?>"><?= htmlspecialchars($cat['title']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <button type="submit" name="quick_quote" class="btn btn-dark w-100">Envoyer la demande</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <footer>
     <div class="container">
