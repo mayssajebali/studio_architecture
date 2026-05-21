@@ -300,64 +300,6 @@ if ($action === 'supprimer_client') {
     exit;
 }
 
-// ═══════════════════════════════════════════════════════════
-// GESTION DES RENDEZ-VOUS
-// ═══════════════════════════════════════════════════════════
-
-if ($action === 'confirmer_rdv') {
-    $id = (int)$_POST['id'];
-    $notes = trim($_POST['notes'] ?? '');
-    
-    $stmt = $pdo->prepare("UPDATE appointments SET status = 'confirme', admin_notes = ? WHERE id = ?");
-    $stmt->execute([$notes, $id]);
-    
-    header('Location: dashboard_admin.php?section=rendez-vous&msg=confirme');
-    exit;
-}
-
-if ($action === 'annuler_rdv') {
-    $id = (int)$_POST['id'];
-    $raison = trim($_POST['raison'] ?? '');
-    
-    $stmt = $pdo->prepare("UPDATE appointments SET status = 'annule', admin_notes = ? WHERE id = ?");
-    $stmt->execute([$raison, $id]);
-    
-    header('Location: dashboard_admin.php?section=rendez-vous&msg=annule');
-    exit;
-}
-
-if ($action === 'terminer_rdv') {
-    $id = (int)$_POST['id'];
-    $notes = trim($_POST['notes'] ?? '');
-    
-    $stmt = $pdo->prepare("UPDATE appointments SET status = 'termine', admin_notes = ? WHERE id = ?");
-    $stmt->execute([$notes, $id]);
-    
-    header('Location: dashboard_admin.php?section=rendez-vous&msg=termine');
-    exit;
-}
-
-if ($action === 'supprimer_rdv') {
-    $id = (int)$_POST['id'];
-    
-    $stmt = $pdo->prepare("DELETE FROM appointments WHERE id = ?");
-    $stmt->execute([$id]);
-    
-    header('Location: dashboard_admin.php?section=rendez-vous&msg=suppression');
-    exit;
-}
-
-if ($action === 'ajouter_notes_rdv') {
-    $id = (int)$_POST['id'];
-    $notes = trim($_POST['notes'] ?? '');
-    
-    $stmt = $pdo->prepare("UPDATE appointments SET admin_notes = ? WHERE id = ?");
-    $stmt->execute([$notes, $id]);
-    
-    header('Location: dashboard_admin.php?section=rendez-vous&msg=notes_ajoutees');
-    exit;
-}
-
 header('Location: dashboard_admin.php');
 exit;
 ?>

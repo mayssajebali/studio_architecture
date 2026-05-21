@@ -19,10 +19,6 @@ try {
 try {
     $nb_styles = $pdo->query("SELECT COUNT(*) FROM styles")->fetchColumn();
 } catch(Exception $e) {}
-
-try {
-    $nb_rdv_attente = $pdo->query("SELECT COUNT(*) FROM appointments WHERE status='en_attente'")->fetchColumn();
-} catch(Exception $e) {}
 ?>
 
 <aside class="sidebar" id="sidebar">
@@ -36,12 +32,6 @@ try {
             <i class="bi bi-envelope"></i><span class="nav-item-label">Demandes clients</span>
             <?php if ($nb_attente_nav > 0): ?>
             <span class="nav-badge"><?= $nb_attente_nav ?></span>
-            <?php endif; ?>
-        </a>
-        <a href="dashboard_admin.php?section=rendez-vous" class="nav-item" data-tooltip="Rendez-vous">
-            <i class="bi bi-calendar-check"></i><span class="nav-item-label">Rendez-vous</span>
-            <?php if ($nb_rdv_attente > 0): ?>
-            <span class="nav-badge" style="background:#ff6b6b;color:#fff;"><?= $nb_rdv_attente ?></span>
             <?php endif; ?>
         </a>
         <a href="dashboard_admin.php?section=styles" class="nav-item" data-tooltip="Styles">
