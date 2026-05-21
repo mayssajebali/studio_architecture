@@ -95,8 +95,7 @@ if ($action === 'supprimer_avis') {
     $pdo->prepare("DELETE FROM temoignages WHERE id = ?")->execute([$id]);
     header('Location: dashboard_admin.php?section=avis');
     exit;
-}
-
+} 
 
 if ($action === 'ajouter_avis') {
     $client_name = trim($_POST['client_name']);

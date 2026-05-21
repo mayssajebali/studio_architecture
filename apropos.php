@@ -122,16 +122,15 @@
     </div>
 </section>
 
-<!-- Section Statistiques (de la maquette 1) -->
+<!-- Section Statistiques -->
 <section class="stats-section">
     <div class="container">
         <div class="row">
             
-            <!-- Stat 1 -->
             <div class="col-md-4 mb-4 mb-md-0">
                 <div class="stat-item">
                     <div class="stat-number">
-                        <span class="counter">15</span><span class="plus-sign">+</span>
+                        <span class="counter" data-target="15">0</span><span class="plus-sign">+</span>
                     </div>
                     <div class="stat-label">
                         <span class="label-bold">EXPERTS</span><br>
@@ -140,11 +139,10 @@
                 </div>
             </div>
             
-            <!-- Stat 2 -->
             <div class="col-md-4 mb-4 mb-md-0">
                 <div class="stat-item">
                     <div class="stat-number">
-                        <span class="counter">50</span><span class="plus-sign">+</span>
+                        <span class="counter" data-target="50">0</span><span class="plus-sign">+</span>
                     </div>
                     <div class="stat-label">
                         <span class="label-bold">PROJETS</span><br>
@@ -153,11 +151,10 @@
                 </div>
             </div>
             
-            <!-- Stat 3 -->
             <div class="col-md-4">
                 <div class="stat-item">
                     <div class="stat-number">
-                        <span class="counter">10</span><span class="plus-sign">+</span>
+                        <span class="counter" data-target="10">0</span><span class="plus-sign">+</span>
                     </div>
                     <div class="stat-label">
                         <span class="label-bold">ANS</span><br>
@@ -169,7 +166,6 @@
         </div>
     </div>
 </section>
-
 
 
 
@@ -494,6 +490,28 @@
         Copyright © 2025 GreenHome LLP. Tous droits réservés.
     </div>
 </footer>
+
+<script>
+    window.addEventListener('load', function () {
+        document.querySelectorAll('.counter').forEach(function (counter) {
+            var target = parseInt(counter.textContent);
+            counter.setAttribute('data-target', target);
+            counter.textContent = '0';
+            var current = 0;
+            var step = Math.ceil(target / 50);
+
+            var timer = setInterval(function () {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = current;
+            }, 30);
+        });
+    });
+</script>
+
 
 </body>
 </html>
